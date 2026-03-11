@@ -211,6 +211,7 @@ void QmlInputController::keyPress(int row, int index)
         return;
 
     int key = getKeyValue(row, index);
+    qDebug() << __func__ << "key" << key;
     InputEngine::InputMode mode = InputEngineBase->inputMode();
     bool shift = InputContextBase->shift();
     bool capsLock = InputContextBase->capsLock();
@@ -242,6 +243,7 @@ void QmlInputController::keyRelease(int row, int index)
         return;
 
     int key = getKeyValue(row, index);
+    qDebug() << __func__ << "key" << (key == Key_SwitchLanguage);
     InputEngine::InputMode mode = InputEngineBase->inputMode();
     bool shift = InputContextBase->shift();
     bool capsLock = InputContextBase->capsLock();

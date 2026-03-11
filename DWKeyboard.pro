@@ -19,10 +19,10 @@ DEFINES += DWKEYBOARD_LIBRARY HAVE_PINYIN
 
 CONFIG(debug, debug|release){
     TARGET = dwkeyboardd
-    LIBS += -L$$OUT_PWD/../DWKeyboard/lib/ -lpinyind
+	LIBS += -L$$OUT_PWD/../DWKeyboard/lib/ -lpinyind
 } else {
     TARGET = dwkeyboard
-    LIBS += -L$$OUT_PWD/../DWKeyboard/lib/ -lpinyin
+	LIBS += -L$$OUT_PWD/../DWKeyboard/lib/ -lpinyin
 }
 
 win32:QMAKE_LFLAGS += -shared

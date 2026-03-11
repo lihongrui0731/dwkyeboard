@@ -35,6 +35,7 @@ Rectangle {
             }
         }
         onLayoutChanged: {
+            console.log("onLayoutChanged")
             layoutTrigger = !layoutTrigger;
         }
     }
