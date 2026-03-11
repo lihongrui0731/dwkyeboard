@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT += gui core svg core-private
+QT += gui core svg core-private qml quick quickwidgets
 
 CONFIG += create_prl
 CONFIG += c++14
@@ -28,6 +28,7 @@ CONFIG(debug, debug|release){
 win32:QMAKE_LFLAGS += -shared
 SOURCES += \
     KeyboardGlobal.cpp \
+    src/qmlinputcontroller.cpp \
     src/abstractinputmethod.cpp \
     src/abstractinputpanel.cpp \
     src/appinputpanel.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
     src/trace.cpp
 
 HEADERS +=\
+    include/qmlinputcontroller.h \
     include/dwkeyboard_global.h \
     include/KeyboardGlobal.h \
     include/abstractinputmethod.h \
@@ -79,4 +81,5 @@ unix {
 }
 
 RESOURCES += \
-    content/styles/default/default_style.qrc
+    content/styles/default/default_style.qrc \
+    qml.qrc
