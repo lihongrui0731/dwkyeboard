@@ -198,8 +198,26 @@ bool PlatformInputContext::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
+} // namespace QtVirtualKeyboard
+
+#include "qmlinputcontroller.h"
+
+namespace QtVirtualKeyboard {
+
 void PlatformInputContext::sendEvent(QEvent *event)
 {
+    if (event->type() == QEvent::InputMethod) {
+        QInputMethodEvent *ime = static_cast<QInputMethodEvent*>(event);
+        if (!ime->commitString().isEmpty()) {
+            QmlInputController *ctrl = QmlInputController::instance();
+            if (ctrl) {
+                // If there's a commit string, emit it to QML directly too,
+                // so the QML component can inject it when bypassing the platform window.
+                QMetaObject::invokeMethod(ctrl, "commitText", Q_ARG(QString, ime->commitString()));
+            }
+        }
+    }
+
     if (m_focusObject) {
         m_filterEvent = event;
         QGuiApplication::sendEvent(m_focusObject, event);

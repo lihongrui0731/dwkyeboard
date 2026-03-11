@@ -57,6 +57,11 @@ QmlInputController::QmlInputController(QObject *parent)
 {
 }
 
+void QmlInputController::onPreeditTextChanged()
+{
+    emit preeditTextChanged();
+}
+
 QmlInputController::~QmlInputController()
 {
 }
@@ -80,6 +85,14 @@ void QmlInputController::emitLayoutChanged()
 int QmlInputController::candidateCount() const
 {
     return m_candidates.size();
+}
+
+QString QmlInputController::preeditText() const
+{
+    if (InputContextBase) {
+        return InputContextBase->preeditText();
+    }
+    return QString();
 }
 
 QString QmlInputController::candidateAt(int index) const

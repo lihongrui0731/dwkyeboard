@@ -13,6 +13,7 @@ class DWKEYBOARDSHARED_EXPORT QmlInputController : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int candidateCount READ candidateCount NOTIFY candidatesChanged)
+    Q_PROPERTY(QString preeditText READ preeditText NOTIFY preeditTextChanged)
 
 public:
     explicit QmlInputController(QObject *parent = nullptr);
@@ -32,6 +33,8 @@ public:
     Q_INVOKABLE int candidateCount() const;
     Q_INVOKABLE QString candidateAt(int index) const;
     Q_INVOKABLE void updateCandidates();
+
+    Q_INVOKABLE QString preeditText() const;
     Q_INVOKABLE void selectCandidate(int index);
 
     Q_INVOKABLE void emitLayoutChanged();
@@ -52,6 +55,11 @@ signals:
     void virtualKeyRelease(Qt::Key key, const QString &text, Qt::KeyboardModifiers modifiers);
     void closeInput();
     void layoutChanged();
+    void preeditTextChanged();
+    void commitText(const QString &text);
+
+private slots:
+    void onPreeditTextChanged();
 
 private:
     QString GetShowText(int key, bool bshift, bool bcaplock, InputEngine::InputMode mode) const;

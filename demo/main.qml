@@ -30,9 +30,22 @@ Window {
     Connections {
         target: InputController
         function onVirtualKeyPress(key, text, modifiers, isAutoRepeat) {
-            if (key === Qt.Key_Backspace) {
-                inputField.remove(inputField.cursorPosition - 1, inputField.cursorPosition)
-            } else if (text !== "") {
+            // Only insert raw characters if we are NOT composing pinyin
+            if (InputController.preeditText === "") {
+                if (key === Qt.Key_Backspace) {
+                    inputField.remove(inputField.cursorPosition - 1, inputField.cursorPosition)
+                } else if (text !== "") {
+                    inputField.insert(inputField.cursorPosition, text)
+                }
+            } else {
+                // If we are composing, we only let backspace delete the raw characters from the preedit context.
+                // The C++ backend handles the actual deletion from preedit. But if the input field also gets
+                // the backspace, we should not delete the input field's committed text.
+            }
+        }
+
+        function onCommitText(text) {
+            if (text !== "") {
                 inputField.insert(inputField.cursorPosition, text)
             }
         }

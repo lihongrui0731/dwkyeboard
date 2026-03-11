@@ -51,6 +51,23 @@ Rectangle {
         anchors.margins: 10
         spacing: 5
 
+        // Preedit Text Area
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: InputController.preeditText !== "" ? 30 : 0
+            color: "transparent"
+            visible: InputController.preeditText !== ""
+
+            Text {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                text: InputController.preeditText
+                color: "#FDD71A"
+                font.pixelSize: 20
+                font.underline: true
+            }
+        }
+
         // Candidate List
         ListView {
             id: candidateView
