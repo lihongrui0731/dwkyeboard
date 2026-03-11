@@ -375,7 +375,6 @@ QList<InputEngine::InputMode> PinyinInputMethod::inputModes(const QString &local
     Q_UNUSED(locale)
     Q_D(PinyinInputMethod);
     QList<InputEngine::InputMode> result;
-    qDebug() << __func__ << "d->pinyinDecoderService" << d->pinyinDecoderService;
     if (d->pinyinDecoderService)
         result << InputEngine::Pinyin;
     result << InputEngine::Latin;
