@@ -28,7 +28,9 @@
 ****************************************************************************/
 
 #include <desktopinputpanel2.h>
-#include <inputview.h>
+#include <qmlinputcontroller.h>
+#include <QQuickView>
+#include <QQmlContext>
 #include <platforminputcontext.h>
 #include <inputcontext.h>
 #include <QGuiApplication>
@@ -71,7 +73,8 @@ public:
             windowingSystem = Xcb;
     }
 
-    QScopedPointer<InputDialogView> view;
+    QScopedPointer<QQuickView> view;
+    QScopedPointer<QmlInputController> controller;
     QRectF keyboardRect;
     QRectF previewRect;
     bool previewVisible;
@@ -115,7 +118,12 @@ void DesktopInputPanel2::show(QObject* focusobj)
             QPoint pt = w->pos();
             QRect rc = w->rect();
             pt = w->mapToGlobal(QPoint(0, 0));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+            QScreen *screen = QGuiApplication::screenAt(pt);
+            QRect rcScreen = screen ? screen->geometry() : QApplication::desktop()->screenGeometry(pt);
+#else
             QRect rcScreen = QApplication::desktop()->screenGeometry(pt);
+#endif
 
             int x = pt.x();
             int y = pt.y() + rc.height() + 1;
@@ -141,13 +149,11 @@ void DesktopInputPanel2::show(QObject* focusobj)
                 y = rcScreen.top();
             }
             repositionView(QRect(x ,y , wid, hei));
-        }else{
-
-            //QRect rcScreen = QGuiApplication::;
-            //qDebug() << "rcScreen: __ " <<  rcScreen ;
-
         }
-        d->view->show();
+
+        if (d->view) {
+            d->view->show();
+        }
     }
 }
 
@@ -179,24 +185,30 @@ void DesktopInputPanel2::createView()
             connect(qGuiApp, SIGNAL(focusWindowChanged(QWindow*)), SLOT(focusWindowChanged(QWindow*)));
             focusWindowChanged(qGuiApp->focusWindow());
         }
-         d->view.reset(new InputDialogView(this));
-         /*  Set appropriate WindowType for target environment.
+
+        d->controller.reset(new QmlInputController(this));
+        d->controller->setMainObject(this);
+
+        d->view.reset(new QQuickView());
+        d->view->rootContext()->setContextProperty("inputController", d->controller.data());
+        d->view->setSource(QUrl("qrc:/DWKeyboardPanel.qml"));
+        d->view->setColor(QColor(Qt::transparent));
+
+        /*  Set appropriate WindowType for target environment.
             There seems to be no common type which would
             work in all environments. The purpose of this
             flag is to avoid the window from capturing focus,
             as well as hiding it from the task bar. */
-        d->view->setWindowModality(Qt::NonModal);
+        d->view->setFlags(d->view->flags() | Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowDoesNotAcceptFocus);
+
         switch (d->windowingSystem) {
         case DesktopInputPanel2Private::Xcb:
-            d->view->setWindowFlags(d->view->windowFlags() | Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowDoesNotAcceptFocus);
+            d->view->setFlags(d->view->flags() | Qt::Window);
             break;
         default:
-            d->view->setWindowFlags(d->view->windowFlags() | Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
             break;
         }
 
-        // d->view->setcolor(QColor(Qt::transparent));
-        // d->view->setSource(QUrl("qrc:///QtQuick/VirtualKeyboard/content/InputPanel.qml"));
         connect(qGuiApp, SIGNAL(aboutToQuit()), SLOT(destroyView()));
     }
 }
@@ -285,9 +297,9 @@ void DesktopInputPanel2::updateInputRegion()
         return;
 
     // Make sure the native window is created
-    if (!d->view->windowHandle())
+    if (!d->view->isExposed())
     {
-        QWindow* wind = d->view->windowHandle();
+        // QQuickView is a QWindow itself, so it doesn't use windowHandle() like QWidget.
     }
     switch (d->windowingSystem) {
     case DesktopInputPanel2Private::Xcb:
@@ -323,56 +335,9 @@ void DesktopInputPanel2::updateInputRegion()
 
 bool DesktopInputPanel2::eventFilter(QObject *object, QEvent *event)
 {
-    Q_D(DesktopInputPanel2);
-
-    bool ret = false;
-    if (d->view.isNull()/* || d->keyboardRect.isEmpty()*/)
-        return false;
-
-    QEvent::Type type = event->type();
-    if (type == QEvent::KeyPress)
-    {
-        const QKeyEvent *keyEvent = static_cast<const QKeyEvent *>(event);
-        QList<QPushButton*> list = d->view->GetButtonList(keyEvent->key());
-        if (list.size() == 0)
-        {
-            return false;
-        }
-
-        foreach(QPushButton* btn, list)
-        {
-            if (btn)
-            {
-
-            }
-        }
-
-        return true;
-    }
-    else if (type == QEvent::KeyRelease)
-    {
-        const QKeyEvent *keyEvent = static_cast<const QKeyEvent *>(event);
-        QList<QPushButton*> list = d->view->GetButtonList(keyEvent->key());
-        if (list.size() == 0)
-        {
-            return false;
-        }
-
-        foreach(QPushButton* btn , list)
-        {
-            if (btn)
-            {
-                emit btn->pressed();
-                emit btn->released();
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    return false;
+    Q_UNUSED(object);
+    Q_UNUSED(event);
+    return false; // Hardware key mapping omitted for QML variant
 }
 
 } // namespace QtVirtualKeyboard
