@@ -1,6 +1,7 @@
 #include <qmlinputcontroller.h>
 #include <KeyboardGlobal.h>
 #include <QDebug>
+#include <QQmlEngine>
 #include <inputcontext.h>
 #include <platforminputcontext.h>
 
@@ -26,6 +27,30 @@ const int line4Value[QmlInputController::ViewMask][6] = {
     {Key_SwitchABC, Key_SwitchLanguage, Qt::Key_Space, Qt::Key_Period, Key_Other, Key_Exit},
     {Key_SwitchABC, Key_SwitchLanguage, Qt::Key_Space, Qt::Key_Period, Key_Other, Key_Exit}
 };
+
+static QmlInputController *s_instance = nullptr;
+
+QmlInputController *QmlInputController::instance()
+{
+    if (!s_instance) {
+        s_instance = new QmlInputController();
+        // Ensure it is not deleted by the QML engine
+        QQmlEngine::setObjectOwnership(s_instance, QQmlEngine::CppOwnership);
+        // Ensure globals are initialized
+        GlobalInit();
+    }
+    return s_instance;
+}
+
+void QmlInputController::registerQmlType()
+{
+    qmlRegisterSingletonType<QmlInputController>("DWKeyboard", 1, 0, "InputController",
+        [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+            Q_UNUSED(engine)
+            Q_UNUSED(scriptEngine)
+            return QmlInputController::instance();
+        });
+}
 
 QmlInputController::QmlInputController(QObject *parent)
     : QObject(parent), m_ViewMode(ViewABC), main_object(nullptr)

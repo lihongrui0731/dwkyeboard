@@ -18,6 +18,9 @@ public:
     explicit QmlInputController(QObject *parent = nullptr);
     ~QmlInputController();
 
+    static QmlInputController *instance();
+    static void registerQmlType();
+
     enum ViewMode
     {
         ViewABC = 0,

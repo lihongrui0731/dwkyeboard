@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.2
+import DWKeyboard 1.0
 
 Rectangle {
     id: root
@@ -26,11 +27,11 @@ Rectangle {
 
     // Connect to the controller's candidate list changes
     Connections {
-        target: inputController
+        target: InputController
         onCandidatesChanged: {
             candidateModel.clear()
-            for (var i = 0; i < inputController.candidateCount; ++i) {
-                candidateModel.append({ "text": inputController.candidateAt(i) })
+            for (var i = 0; i < InputController.candidateCount; ++i) {
+                candidateModel.append({ "text": InputController.candidateAt(i) })
             }
         }
         onLayoutChanged: {
@@ -42,7 +43,7 @@ Rectangle {
     property bool layoutTrigger: false
 
     Component.onCompleted: {
-        inputController.updateCandidates()
+        InputController.updateCandidates()
     }
 
     ColumnLayout {
@@ -74,7 +75,7 @@ Rectangle {
                     id: mouseArea
                     anchors.fill: parent
                     onClicked: {
-                        inputController.selectCandidate(index)
+                        InputController.selectCandidate(index)
                     }
                 }
             }
@@ -92,11 +93,11 @@ Rectangle {
                 property int rowIndex: index
 
                 Repeater {
-                    model: inputController.keyCount(row.rowIndex)
+                    model: InputController.keyCount(row.rowIndex)
 
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredWidth: inputController.keyWidthRatio(row.rowIndex, index) * 50 // Use a multiplier for relative sizing
+                        Layout.preferredWidth: InputController.keyWidthRatio(row.rowIndex, index) * 50 // Use a multiplier for relative sizing
                         Layout.fillHeight: true
                         color: keyMouseArea.pressed ? "#00CC6B" : "transparent"
                         radius: 3
@@ -111,26 +112,26 @@ Rectangle {
 
                         Image {
                             anchors.centerIn: parent
-                            source: layoutTrigger || !layoutTrigger ? inputController.keyIcon(row.rowIndex, index) : ""
+                            source: layoutTrigger || !layoutTrigger ? InputController.keyIcon(row.rowIndex, index) : ""
                             visible: source !== ""
                         }
 
                         Text {
                             anchors.centerIn: parent
-                            text: layoutTrigger || !layoutTrigger ? inputController.keyText(row.rowIndex, index) : ""
+                            text: layoutTrigger || !layoutTrigger ? InputController.keyText(row.rowIndex, index) : ""
                             color: keyMouseArea.pressed ? "#FFFFFF" : "#FDD71A"
                             font.pixelSize: 15
-                            visible: layoutTrigger || !layoutTrigger ? inputController.keyIcon(row.rowIndex, index) === "" : true
+                            visible: layoutTrigger || !layoutTrigger ? InputController.keyIcon(row.rowIndex, index) === "" : true
                         }
 
                         MouseArea {
                             id: keyMouseArea
                             anchors.fill: parent
                             onPressed: {
-                                inputController.keyPress(row.rowIndex, index)
+                                InputController.keyPress(row.rowIndex, index)
                             }
                             onReleased: {
-                                inputController.keyRelease(row.rowIndex, index)
+                                InputController.keyRelease(row.rowIndex, index)
                             }
                         }
                     }

@@ -1,13 +1,13 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
+#include <qmlinputcontroller.h>
 
 int main(int argc, char *argv[])
 {
-    // Enable the Qt Virtual Keyboard plugin we just modified
-    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
+    QApplication app(argc, argv);
 
-    QGuiApplication app(argc, argv);
+    QtVirtualKeyboard::QmlInputController::registerQmlType();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));

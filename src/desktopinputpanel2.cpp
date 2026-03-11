@@ -186,11 +186,12 @@ void DesktopInputPanel2::createView()
             focusWindowChanged(qGuiApp->focusWindow());
         }
 
-        d->controller.reset(new QmlInputController(this));
-        d->controller->setMainObject(this);
+        QmlInputController::registerQmlType();
+        // Do not use reset() because instance() is a singleton managed with CppOwnership
+        d->controller.reset(); // clear any existing just in case
+        QmlInputController::instance()->setMainObject(this);
 
         d->view.reset(new QQuickView());
-        d->view->rootContext()->setContextProperty("inputController", d->controller.data());
         d->view->setSource(QUrl("qrc:/DWKeyboardPanel.qml"));
         d->view->setColor(QColor(Qt::transparent));
 
